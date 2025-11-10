@@ -1,1 +1,54 @@
 .vercel
+# Dependency directories
+node_modules/
+
+# Build artifacts
+dist/
+build/
+out/
+es/
+lib/
+*.min.js
+*.bundle.js
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.idea/
+.vscode/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Test coverage reports
+coverage/
+
+# IDE specific files
+.history/
+.project
+.settings/
+*.iml
+*.iws
+*.ipr
+
+# NPM specific files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Vercel / Netlify build output
+.vercel/
+.netlify/
+
+# Other common files
+backup/
