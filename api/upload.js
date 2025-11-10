@@ -1,6 +1,4 @@
-import { IncomingForm } from "formidable";
-import fs from "fs";
-import path from "path";
+import formidable from "formidable";
 import { parseFile } from "../utils/parseFile.js";
 import { generateJeopardyPPTX } from "../utils/pptEditor.js";
 
@@ -12,19 +10,28 @@ export default async function handler(req, res) {
     return;
   }
 
-  const form = new IncomingForm();
+  const form = formidable({ multiples: false });
+
   form.parse(req, async (err, fields, files) => {
     if (err) {
-      console.error(err);
+      console.error("Formidable parse error:", err);
       res.status(500).send("File parsing error");
       return;
     }
 
-    try {
-      const file = files.file;
-      const filePath = file.filepath || file.path;
+    // FIX: handle array of files
+    const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
+    const filePath = uploadedFile?.filepath;
 
-      const { categories, questions } = await parseFile(filePath);
+    if (!filePath) {
+      console.log("No file uploaded, files object:", files);
+      return res.status(400).send("No file uploaded");
+    }
+
+    console.log("File uploaded successfully:", uploadedFile.originalFilename);
+
+    try {
+      const { categories, questions } = await parseFile(uploadedFile);
       const buffer = await generateJeopardyPPTX({ categories, questions });
 
       res.setHeader(
@@ -37,9 +44,8 @@ export default async function handler(req, res) {
       );
       res.send(buffer);
     } catch (error) {
-      console.error(error);
-      res.status(500).send("Error processing PPTX: " + error.message);
+      console.error("Error generating PPTX:", error);
+      res.status(500).send("Error generating PPTX: " + (error.message || error.toString()));
     }
   });
 }
-
