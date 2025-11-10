@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jeopardy PPTX Generator</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 50px; }
+  input, button { font-size: 16px; margin: 5px 0; }
+</style>
+</head>
+<body>
+<h1>Jeopardy PPTX Generator</h1>
+
+<button id="downloadSample">Download Sample CSV</button>
+
+<form id="uploadForm">
+  <input type="file" id="fileInput" required />
+  <button type="submit">Generate PPTX</button>
+</form>
+
+<script>
+document.getElementById("downloadSample").addEventListener("click", () => {
+  const categories = ["CATEGORY_1","CATEGORY_2","CATEGORY_3","CATEGORY_4","CATEGORY_5","CATEGORY_6"];
+  const values = [200,400,600,800,1000];
+  let csv = "category,value,question,answer\n";
+
+  categories.forEach(cat => {
+    values.forEach(val => {
+      csv += `${cat},${val},Question for ${cat} ${val},Answer for ${cat} ${val}\n`;
+    });
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sample_jeopardy.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+});
+
+const form = document.getElementById("uploadForm");
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  if (!file) return alert("Select a file first");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/upload", { method: "POST", body: formData });
+  if (!response.ok) return alert("Error generating PPTX");
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "jeopardy_generated.pptx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
+
